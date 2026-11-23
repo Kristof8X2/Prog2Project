@@ -1,4 +1,4 @@
-package domain;
+package org.example;
 
 public class Enemy {
     private String name;
@@ -12,25 +12,39 @@ public class Enemy {
         this.x = x;
         this.y = y;
     }
+
     public void takeDamage(int damage) {
         this.currentHP -= damage;
         if (this.currentHP < 0) {
             this.currentHP = 0;
         }
     }
+
     public boolean isAlive() {
         return this.currentHP > 0;
     }
+
     public String getName() {
         return name;
     }
+
     public int getCurrentHP() {
         return currentHP;
     }
+
     public int getX() {
         return x;
     }
+
     public int getY() {
         return y;
+    }
+
+    public void moveTowards(int targetX, int targetY) {
+        int speed = 2;
+        if (x < targetX) x += speed;
+        if (x > targetX) x -= speed;
+        if (y < targetY) y += speed;
+        if (y > targetY) y -= speed;
     }
 }
