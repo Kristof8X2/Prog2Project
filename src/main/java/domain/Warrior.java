@@ -3,7 +3,7 @@ package domain;
 public class Warrior extends Hero {
 
     public Warrior(String name){
-        super(name, 150, 20, 70);
+        super(name, 250, 35, 150);
     }
 
     @Override

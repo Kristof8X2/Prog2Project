@@ -35,10 +35,13 @@ public abstract class Hero {
             this.CurrentHP = 0;
         }
     }
-    public void heal(int amount){
-            this.CurrentHP += amount;
-            if(this.CurrentHP > this.HP){
+    public void heal(int amount) {
+        this.CurrentHP += amount;
+        if (this.CurrentHP > this.HP) {
+            this.CurrentHP = this.HP;
+        }
+    }
+    public void resetHP(){
                 this.CurrentHP = this.HP;
-            }
     }
 }
