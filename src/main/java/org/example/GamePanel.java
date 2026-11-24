@@ -9,7 +9,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import javax.swing.Timer;
 
 public class GamePanel extends JPanel implements KeyListener {
     private Hero player;
@@ -17,6 +16,8 @@ public class GamePanel extends JPanel implements KeyListener {
     private int playerX = 350;
     private int playerY = 250;
     private int enemyAttackCooldown = 0;
+    private int playerAttackCooldown = 0;
+    private int healCooldown = 0;
 
     public GamePanel(Hero player) {
         this.player = player;
@@ -24,7 +25,15 @@ public class GamePanel extends JPanel implements KeyListener {
         setFocusable(true);
         addKeyListener(this);
         setBackground(Color.DARK_GRAY);
+
         Timer gameLoop = new Timer(30, e -> {
+            if (playerAttackCooldown > 0) {
+                playerAttackCooldown--;
+            }
+            if (healCooldown > 0) {
+                healCooldown--;
+            }
+
             if (enemy.isAlive() && player.getCurrentHP() > 0) {
                 enemy.moveTowards(playerX, playerY);
 
@@ -64,18 +73,22 @@ public class GamePanel extends JPanel implements KeyListener {
             g.setColor(Color.WHITE);
             g.drawString(enemy.getName() + " (" + enemy.getCurrentHP() + " HP)", enemy.getX() - 10, enemy.getY() - 10);
         }
-            g.setColor(Color.WHITE);
-            g.drawString("Player HP: " + player.getCurrentHP(), 20, 20);
+
+        g.setColor(Color.WHITE);
+        g.drawString("Player HP: " + player.getCurrentHP(), 20, 20);
+        if (player instanceof Medic) {
+            g.drawString("Heal CD: " + (healCooldown / 33) + "s", 20, 40);
+        }
 
         if (player.getCurrentHP() <= 0) {
             g.setColor(Color.RED);
             g.drawString("GAME OVER", 350, 300);
         }
     }
+
     @Override
     public void keyPressed(KeyEvent e) {
-        if (player.getCurrentHP() <= 0)
-            return;
+        if (player.getCurrentHP() <= 0) return;
         int speed = 20;
 
         if (e.getKeyCode() == KeyEvent.VK_W) {
@@ -86,12 +99,23 @@ public class GamePanel extends JPanel implements KeyListener {
             playerX -= speed;
         } else if (e.getKeyCode() == KeyEvent.VK_D) {
             playerX += speed;
-        } else if (e.getKeyCode() == KeyEvent.VK_SPACE && enemy.isAlive()) {
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_SPACE && enemy.isAlive() && playerAttackCooldown == 0) {
             double distance = Math.hypot(playerX - enemy.getX(), playerY - enemy.getY());
-            if (distance <= 80) {
+            if (distance <= player.GetAttackRange()) {
                 int damage = player.attack();
                 enemy.takeDamage(damage);
+                if (player instanceof Warrior) {
+                    playerAttackCooldown = 27;
+                } else if (player instanceof Archer) {
+                    playerAttackCooldown = 40;
+                } else if (player instanceof Medic) {
+                    playerAttackCooldown = 33;
+                }
             }
+        } else if (e.getKeyCode() == KeyEvent.VK_H && player instanceof Medic && healCooldown == 0) {
+            player.heal(20);
+            healCooldown = 333;
         }
 
         repaint();

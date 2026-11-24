@@ -3,7 +3,7 @@ package domain;
 public class Medic extends Hero {
 
     public Medic(String name){
-        super(name, 100, 10, 1);
+        super(name, 100, 10, 50);
     }
 
     @Override
