@@ -2,46 +2,48 @@ package domain;
 
 public abstract class Hero {
     private String name;
-    private int HP;
-    private int CurrentHP;
-    private int basedmg;
-    private int Attackrange;
+    private int maxHP;
+    private int currentHP;
+    private int baseDmg;
+    private int attackRange;
 
-    public Hero(String name, int HP, int basedmg, int Attackrange) {
+    public Hero(String name, int maxHP, int baseDmg, int attackRange) {
         this.name = name;
-        this.HP = HP;
-        this.CurrentHP = HP;
-        this.basedmg = basedmg;
-        this.Attackrange = Attackrange;
+        this.maxHP = maxHP;
+        this.currentHP = maxHP;
+        this.baseDmg = baseDmg;
+        this.attackRange = attackRange;
     }
-
     public abstract int attack();
 
     public String GetName() {
         return name;
     }
+    public int getMaxHP() {
+        return maxHP;
+    }
     public int getCurrentHP() {
-        return CurrentHP;
+        return currentHP;
     }
     public int getBasedmg() {
-        return basedmg;
+        return baseDmg;
     }
     public int GetAttackRange() {
-        return Attackrange;
+        return attackRange;
     }
     public void takeDamage(int damage) {
-        this.CurrentHP -= damage;
-        if (this.CurrentHP < 0) {
-            this.CurrentHP = 0;
+        this.currentHP -= damage;
+        if (this.currentHP < 0) {
+            this.currentHP = 0;
         }
     }
     public void heal(int amount) {
-        this.CurrentHP += amount;
-        if (this.CurrentHP > this.HP) {
-            this.CurrentHP = this.HP;
+        this.currentHP += amount;
+        if (this.currentHP > this.maxHP) {
+            this.currentHP = this.maxHP;
         }
     }
-    public void resetHP(){
-                this.CurrentHP = this.HP;
+    public void resetHP() {
+        this.currentHP = this.maxHP;
     }
 }

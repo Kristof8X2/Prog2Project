@@ -5,6 +5,7 @@ import java.awt.Color;
 public class Enemy {
     private String name;
     private int currentHP;
+    private int maxHP;
     private int x;
     private int y;
     private int speed;
@@ -14,6 +15,7 @@ public class Enemy {
     public Enemy(String name, int maxHP, int x, int y, int speed, int damage, Color color) {
         this.name = name;
         this.currentHP = maxHP;
+        this.maxHP = maxHP;
         this.x = x;
         this.y = y;
         this.speed = speed;
@@ -39,9 +41,12 @@ public class Enemy {
     }
 
     public int getCurrentHP() {
+
         return currentHP;
     }
-
+    public int getMaxHP(){
+        return maxHP;
+    }
     public int getX() {
 
         return x;
