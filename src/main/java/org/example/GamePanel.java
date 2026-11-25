@@ -1,7 +1,6 @@
 package org.example;
 
 import domain.*;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -28,6 +27,9 @@ public class GamePanel extends JPanel implements KeyListener {
     private int attackEffectTimer = 0;
     private int attackTargetX, attackTargetY;
     private JButton restartButton;
+    private HighScoreManager highScoreManager = new HighScoreManager();
+    private ArrayList<HighScore> topScores = new ArrayList<>();
+    private boolean scoreSaved = false;
 
     public GamePanel(Hero player) {
         this.player = player;
@@ -105,44 +107,52 @@ public class GamePanel extends JPanel implements KeyListener {
             if (player.getCurrentHP() <= 0 && !restartButton.isVisible()) {
                 restartButton.setVisible(true);
             }
+            if (player.getCurrentHP() <= 0 && !restartButton.isVisible()) {
+                restartButton.setVisible(true);
+                if (!scoreSaved) {
+                    scoreSaved = true;
+                    try {
+                        HighScore entry = new HighScore(
+                                player.GetName(),
+                                player.getClass().getSimpleName(),
+                                score,
+                                wave
+                        );
+                        highScoreManager.saveScore(entry);
+                        topScores = new ArrayList<>(highScoreManager.loadTopScores(5));
+                    } catch (ScoreStorageException ex) {
+                        System.err.println("High score error: " + ex.getMessage());
+                    }
+                }
+            }
             repaint();
         });
         gameLoop.start();
     }
-private void spawnWave(int count) {
-    enemies.clear();
-    for (int i = 0; i < count; i++) {
-        int spawnX, spawnY;
-        int side = random.nextInt(4);
-        if (side == 0) {
-            spawnX = random.nextInt(750);
-            spawnY = 0;
-        } else if (side == 1) {
-            spawnX = random.nextInt(750);
-            spawnY = 550;
-        } else if (side == 2) {
-            spawnX = 0;
-            spawnY = random.nextInt(550);
-        } else {
-            spawnX = 750;
-            spawnY = random.nextInt(550);
+    private void spawnWave(int count) {
+        enemies.clear();
+        for (int i = 0; i < count; i++) {
+            int spawnX, spawnY;
+            int side = random.nextInt(4);
+            if (side == 0) {
+                spawnX = random.nextInt(750);
+                spawnY = 0;
+            } else if (side == 1) {
+                spawnX = random.nextInt(750);
+                spawnY = 550;
+            } else if (side == 2) {
+                spawnX = 0;
+                spawnY = random.nextInt(550);
+            } else {
+                spawnX = 750;
+                spawnY = random.nextInt(550);
+            }
+            enemies.add(EnemyFactory.createRandomEnemy(wave, spawnX, spawnY));
         }
-        int type = random.nextInt(100);
-        if (wave >= 3 && type < 25)
-        {
-            enemies.add(new Enemy("Orc", 100 + (wave * 15), spawnX, spawnY, 1, 20, Color.ORANGE));
-        } else if (wave >= 2 && type < 55)
-        {
-            enemies.add(new Enemy("Skeleton", 30 + (wave * 5), spawnX, spawnY, 4, 5, Color.MAGENTA));
-        } else
-        {
-            enemies.add(new Enemy("Goblin", 50 + (wave * 10), spawnX, spawnY, 2, 10, Color.BLACK));
+        if (wave % 5 == 0) {
+            enemies.add(EnemyFactory.createEnemy(EnemyFactory.EnemyType.BOSS, wave, 350, 0));
         }
     }
-    if (wave % 5 == 0) {
-        enemies.add(new Enemy("BOSS", 250 + (wave * 20), 350, 0, 2, 25, Color.YELLOW));
-    }
-}
 
     private void spawnPowerUp(Enemy enemy) {
         if (enemy.getName().equals("BOSS") || random.nextInt(100) < 50) {
@@ -222,6 +232,20 @@ private void spawnWave(int count) {
             g.setColor(Color.RED);
             g.drawString("GAME OVER", 350, 300);
         }
+        if (player.getCurrentHP() <= 0) {
+            g.setColor(Color.RED);
+            g.drawString("GAME OVER", 350, 300);
+
+            g.setColor(Color.YELLOW);
+            g.drawString(" TOP 5 HIGH SCORES ", 305, 385);
+            g.setColor(Color.WHITE);
+            int y = 405;
+            for (int i = 0; i < topScores.size(); i++) {
+                HighScore s = topScores.get(i);
+                g.drawString((i + 1) + ". " + s.toDisplayString(), 270, y);
+                y += 20;
+            }
+        }
     }
         private void restartGame() {
             player.resetHP();
@@ -239,6 +263,7 @@ private void spawnWave(int count) {
             healCooldown = 0;
             restartButton.setVisible(false);
             requestFocusInWindow();
+            scoreSaved = false;
             repaint();
         }
         @Override
