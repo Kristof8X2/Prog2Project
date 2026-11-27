@@ -1,0 +1,110 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "domain" {
+    abstract class Hero {
+        # name : String
+        # hp : int
+        # maxHp : int
+        # attackPower : int
+        # level : int
+        + attack(target : Enemy) : int
+        + takeDamage(amount : int) : void
+        + heal(amount : int) : void
+        + isAlive() : boolean
+        + {abstract} useSpecialAbility(target : Enemy) : void
+    }
+
+    class Warrior {
+        + useSpecialAbility(target : Enemy) : void
+    }
+
+    class Archer {
+        + useSpecialAbility(target : Enemy) : void
+    }
+
+    class Medic {
+        + useSpecialAbility(target : Enemy) : void
+    }
+
+    class Enemy {
+        - name : String
+        - hp : int
+        - attackPower : int
+        + attack(hero : Hero) : int
+        + takeDamage(amount : int) : void
+        + isAlive() : boolean
+    }
+
+    class EnemyFactory <<Factory>> {
+        + {static} createEnemy(level : int) : Enemy
+    }
+
+    class PowerUp {
+        - type : String
+        - value : int
+        + apply(hero : Hero) : void
+    }
+
+    class HighScore {
+        - playerName : String
+        - score : int
+        + compareTo(other : HighScore) : int
+    }
+
+    class HighScoreManager {
+        - scores : List<HighScore>
+        + addScore(score : HighScore) : void
+        + getTopScores() : List<HighScore>
+        + saveScores() : void
+        + loadScores() : void
+    }
+
+    class SaveManager {
+        + saveGame(hero : Hero, wave : int) : void
+        + loadGame() : Hero
+    }
+
+    class ScoreStorageException <<Exception>> {
+        + ScoreStorageException(message : String)
+        + ScoreStorageException(message : String, cause : Throwable)
+    }
+
+    Hero <|-- Warrior
+    Hero <|-- Archer
+    Hero <|-- Medic
+
+    EnemyFactory ..> Enemy : creates
+    Hero ..> Enemy : attacks
+    PowerUp ..> Hero : buffs
+    HighScoreManager o-- HighScore : manages
+    HighScoreManager ..> ScoreStorageException : throws
+    SaveManager ..> Hero : persists
+}
+
+package "org.example" {
+    class Main {
+        + {static} main(args : String[]) : void
+    }
+
+    class ConsoleGame {
+        + start() : void
+    }
+
+    class GamePanel {
+        + startGame() : void
+    }
+
+    Main ..> ConsoleGame : launches
+    Main ..> GamePanel : launches
+    ConsoleGame --> Hero
+    ConsoleGame --> EnemyFactory
+    ConsoleGame --> SaveManager
+    ConsoleGame --> HighScoreManager
+    GamePanel --> Hero
+    GamePanel --> EnemyFactory
+    GamePanel --> SaveManager
+    GamePanel --> HighScoreManager
+}
+@enduml
